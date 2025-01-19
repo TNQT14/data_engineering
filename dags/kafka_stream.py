@@ -20,7 +20,7 @@ def stream_data():
     curr_time = time.time()
 
     while True:
-        if time.time() > curr_time + 5:  # 1 minute
+        if time.time() > curr_time + 60:  # 1 minute
             break
         try:
             res = get_data()
@@ -33,7 +33,7 @@ def stream_data():
 
 with DAG('user_automation',
          default_args = default_args,
-         schedule_interval= '*/10 * * * * *',
+         schedule_interval= '@daily',
          catchup= False) as dag:
 
     streaming_task = PythonOperator(
@@ -55,7 +55,7 @@ def format_data(res, curr_time):
 
     data = {}
     location = res['location']
-    # data['id'] = uuid.uuid4()
+    data['id'] = str(uuid.uuid4())
     data['first_name'] = res['name']['first']
     data['last_name'] = res['name']['last']
     data['gender'] = res['gender']
@@ -69,13 +69,13 @@ def format_data(res, curr_time):
     data['phone'] = res['phone']
     data['picture'] = res['picture']['medium']
 
-    # Convert to a datetime object
-    converted_time = datetime.datetime.fromtimestamp(time.time())
-
-    # Format the datetime object to a readable string
-    formatted_time = converted_time.strftime("%Y-%m-%d %H:%M:%S.%f")
-    data['created_time'] = formatted_time
-    data['curr_time'] = datetime.datetime.fromtimestamp(curr_time).strftime("%Y-%m-%d %H:%M:%S.%f")
+    # # Convert to a datetime object
+    # converted_time = datetime.datetime.fromtimestamp(time.time())
+    #
+    # # Format the datetime object to a readable string
+    # formatted_time = converted_time.strftime("%Y-%m-%d %H:%M:%S.%f")
+    # data['created_time'] = formatted_time
+    # data['curr_time'] = datetime.datetime.fromtimestamp(curr_time).strftime("%Y-%m-%d %H:%M:%S.%f")
 
     return data
 
